@@ -3,20 +3,22 @@ package entity
 import (
 	"bufio"
 	"bytes"
-	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type Entity struct {
-	startTime, endTime time.Time
+	StartTime, EndTime time.Time
 	Request            *http.Request
 	Response           *http.Response
 	// http.Body can only be read once, a new body needs to be copied
-	reqBody, respBody io.ReadCloser
+	ReqBody, RespBody io.ReadCloser
+	Value             interface{}
 }
 
 func NewEntity(conn net.Conn) (*Entity, error) {
@@ -32,9 +34,9 @@ func NewEntity(conn net.Conn) (*Entity, error) {
 
 	request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	return &Entity{
-		startTime: time.Now(),
+		StartTime: time.Now(),
 		Request:   request,
-		reqBody:   ioutil.NopCloser(bytes.NewBuffer(bodyBytes)),
+		ReqBody:   ioutil.NopCloser(bytes.NewBuffer(bodyBytes)),
 	}, nil
 }
 
@@ -46,21 +48,21 @@ func NewEntityWithRequest(request *http.Request) (*Entity, error) {
 
 	request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	return &Entity{
-		startTime: time.Now(),
+		StartTime: time.Now(),
 		Request:   request,
-		reqBody:   ioutil.NopCloser(bytes.NewBuffer(bodyBytes)),
+		ReqBody:   ioutil.NopCloser(bytes.NewBuffer(bodyBytes)),
 	}, nil
 }
 
 func (entity *Entity) SetResponse(response *http.Response) error {
-	entity.endTime = time.Now()
+	entity.EndTime = time.Now()
 	bodyBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return err
 	}
 	response.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	entity.Response = response
-	entity.respBody = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	entity.RespBody = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 	return nil
 }
 
@@ -77,9 +79,9 @@ func (entity *Entity) SetRemoteAddr(remoteAddr string) {
 }
 
 func (entity *Entity) GetRequestBody() io.ReadCloser {
-	return entity.reqBody
+	return entity.ReqBody
 }
 
 func (entity *Entity) GetResponseBody() io.ReadCloser {
-	return entity.respBody
+	return entity.RespBody
 }

@@ -5,14 +5,15 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"github.com/nicecp/GoIyov/cert"
-	"github.com/nicecp/GoIyov/conn"
-	"github.com/nicecp/GoIyov/entity"
-	"github.com/pkg/errors"
 	"net"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/nicecp/GoIyov/cert"
+	"github.com/nicecp/GoIyov/conn"
+	"github.com/nicecp/GoIyov/entity"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -32,13 +33,14 @@ var (
 )
 
 var serverCertFlag = flag.Bool("cert", false, "安装server证书,默认不安装")
+
 type Proxy struct {
 	delegate Delegate
-	dns *Dns
+	dns      *Dns
 }
 
-func init() {
-	flag.Parse()
+func Init() {
+	//flag.Parse()
 	if *serverCertFlag { // 安装服务端证书
 		if err := cert.AddTrustedCert(); err != nil {
 			panic(err)
@@ -46,7 +48,7 @@ func init() {
 	}
 }
 func New() *Proxy {
-	return &Proxy{delegate: &DefaultDelegate{},dns: &DefaultDns}
+	return &Proxy{delegate: &DefaultDelegate{}, dns: &DefaultDns}
 }
 
 func NewWithDelegate(delegate Delegate) *Proxy {
