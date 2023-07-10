@@ -13,5 +13,6 @@ make build
   - `-k`参数关闭本地证书校验
 
 * macos 中配置代理：
+
 ![macos](macos_proxy.png)
 
